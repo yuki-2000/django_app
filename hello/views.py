@@ -1,9 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from .models import Friend
-# from .forms import HelloForm #この文を削除する
-from .forms import FriendForm #この文を新たに追記
 from django.views.generic import ListView
 from django.views.generic import DetailView
 from .forms import FindForm
@@ -11,6 +8,8 @@ from django.db.models import Q
 from django.db.models import Count,Sum,Avg,Min,Max
 from .forms import CheckForm
 from django.core.paginator import Paginator
+from .models import Friend, Message
+from .forms import FriendForm, MessageForm
 
 
 def index(request, num=1):
@@ -117,3 +116,24 @@ def check(request):
             params['message'] = 'no good.'
     return render(request, 'hello/check.html', params)
 
+
+
+
+
+
+
+
+
+def message(request, page=1):
+    if (request.method == 'POST'):
+        obj = Message()
+        form = MessageForm(request.POST, instance=obj)
+        form.save()
+    data = Message.objects.all().reverse()
+    paginator = Paginator(data, 5)
+    params = {
+        'title': 'Message',
+        'form': MessageForm(),
+        'data': paginator.get_page(page),
+    }
+    return render(request, 'hello/message.html', params)
